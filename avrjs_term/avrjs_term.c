@@ -29,23 +29,14 @@ THE SOFTWARE.
 #include <stdio.h>
 #include <limits.h>
 
-int term_print_str(char* c)
+char term_print_str(char c)
 {
-	while (*c)
-	{
-		uart_tx((unsigned char) *c);
-		++c;
-	}
-	return 1;
+	uart_tx(c);
+	return 0;
 }
 
 long int gcd(long int a, long int b)
 {
-	if ((a == 0) && (b == 0))
-	{
-		return -1;
-	}
-	
 	if (a < 0)
 	{
 		a = -a;
@@ -54,6 +45,16 @@ long int gcd(long int a, long int b)
 	{
 		b = -b;
 	}
+	
+    if (a == 0)
+	{
+		return b;
+	}
+	if (b == 0)
+	{
+		return a;
+	}
+	
 	long int r;
 	while(b != 0)
 	{
@@ -69,10 +70,10 @@ void gcd_cmd_cb(void* arg, size_t argc, char** argv)
 	(void) arg;
 	if (argc != 3)
 	{
-		printf("Invalid number of args, gcd requires 2\n");
+		printf("Invalid number of args, gcd requires 2\r\n");
 		return;
 	}
-	char* clamp_str = "%s clamped to %ld to fit into 32 bits\n";
+	char* clamp_str = "%s clamped to %ld to fit into 32 bits\r\n";
 	long int arg0 = strtol(argv[1], 0, 0);
 	if ((arg0 == LONG_MIN) || (arg0 == LONG_MAX))
 	{
@@ -84,7 +85,7 @@ void gcd_cmd_cb(void* arg, size_t argc, char** argv)
 		printf(clamp_str, argv[2], arg1);
 	}
 	
-	printf("%ld\n", gcd(arg0, arg1));
+	printf("%ld\r\n", gcd(arg0, arg1));
 }
 
 void lcm_cmd_cb(void* arg, size_t argc, char** argv)
@@ -92,10 +93,10 @@ void lcm_cmd_cb(void* arg, size_t argc, char** argv)
 	(void) arg;
 	if (argc != 3)
 	{
-		printf("Invalid number of args, lcm requires 2\n");
+		printf("Invalid number of args, lcm requires 2\r\n");
 		return;
 	}
-	char* clamp_str = "%s clamped to %ld to fit into 32 bits\n";
+	char* clamp_str = "%s clamped to %ld to fit into 32 bits\r\n";
 	long int arg0 = strtol(argv[1], 0, 0);
 	if ((arg0 == LONG_MIN) || (arg0 == LONG_MAX))
 	{
@@ -112,17 +113,27 @@ void lcm_cmd_cb(void* arg, size_t argc, char** argv)
 	
 	if (tmp != (result / arg1))
 	{ // overflow
-		printf("overflow detected, result > %ld\n", LONG_MAX);
+		printf("overflow detected, result > %ld\r\n", LONG_MAX);
 	}
 	else
 	{
-		printf("%ld\n", result);
+		printf("%ld\r\n", result);
 	}
 }
 
 int main(void)
 {
 	printf_init();
+
+	printf("This terminal is connected to the UART0 port of a simulated AVR. This text and the prompt below are printed by the default program, you can load your own program by using the load button above.\r\n\r\n"
+	"There is a copy of this default program as an Atmel Studio project on the AVRjs GitHub page: https://github.com/avrjs/avrjs it contains UART routines and implements printf to get you started printing things to this terminal. Please note that interrupts are not currently supported, this should change soon.\r\n\r\n"
+	"THIS IS A TEST, please report any bugs to the AVRjs GitHub page linked in the footer. Thanks!\r\n\r\n"
+	"Demo terminal commands:\r\n"
+	"\"gcd a b\"\r\n"
+	"where a and b are integers, this command will print the greatest common divisor of the 2 numbers providing they can fit in signed 32 bit ints\r\n"
+	"\"lcm a b\"\r\n"
+	"where a and b are integers, this command will print the lowest common multiple of the 2 numbers providing it can fit in a signed 32 bit int\r\n");
+
 	struct mcu_term mt;
 	if (mcu_term_init(&mt, "$", &term_print_str) != 0)
 	{
@@ -132,46 +143,11 @@ int main(void)
 	mcu_term_add_command(&mt, "gcd", &gcd_cmd_cb, 0);
 	mcu_term_add_command(&mt, "lcm", &lcm_cmd_cb, 0);
 
-	printf("This terminal is connected to the UART0 port of a simulated AVR. This text and the prompt below are printed by the default program, you can load your own program by using the load button above.\n\n"
-	"There is a copy of this default program as an Atmel Studio project on the AVRjs GitHub page: https://github.com/avrjs/avrjs it contains UART routines and implements printf to get you started printing things to this terminal. Please note that interrupts are not currently supported, this should change soon.\n\n"
-	"THIS IS A TEST, please report any bugs to the AVRjs GitHub page linked in the footer. Thanks!\n\n"
-	"Demo terminal commands:\n"
-	"\"gcd a b\"\n"
-	"where a and b are integers, this command will print the greatest common divisor of the 2 numbers providing they can fit in signed 32 bit ints\n"
-	"\"lcm a b\"\n"
-	"where a and b are integers, this command will print the lowest common multiple of the 2 numbers providing it can fit in a signed 32 bit int\n");
-
-	unsigned char last_nl = 0;
-
-	mcu_term_write_char(&mt, '\n');
-
     while(1)
     {
 		unsigned char c;
         if (uart_rx(&c) > 0)
 		{
-			// change "\r", "\r\n" and "\n\r" to "\n"
-			if (c == '\r')
-			{
-				if (last_nl == '\n')
-				{
-					last_nl = 0;
-					continue;
-				}
-				last_nl = c;
-				c = '\n';
-			}
-			else if  (c == '\n')
-			{
-				if (last_nl == '\r')
-				{
-					last_nl = 0;
-					continue;
-				}
-				last_nl = c;
-			}
-			// echo
-			uart_tx(c);
 			// parse char
 			if (mcu_term_write_char(&mt, (char) c) < 0)
 			{
