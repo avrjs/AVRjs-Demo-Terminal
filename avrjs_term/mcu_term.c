@@ -187,9 +187,12 @@ int mcu_term_write_char(struct mcu_term * const mt, const char c)
     case '\n':// ignore newline
         break;
     default:
-        mt->line.arr[mt->line.population] = c;
-        ++mt->line.population;
-        mt->print(c);
+		if (mt->line.population < MCU_TERM_BUFFER_SIZE)
+		{
+			mt->line.arr[mt->line.population] = c;
+			++mt->line.population;
+			mt->print(c);
+		}
         break;
     }
     return 0;
