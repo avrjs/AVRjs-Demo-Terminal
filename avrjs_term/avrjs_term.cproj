@@ -120,6 +120,9 @@
     <Compile Include="avrjs_uart.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="cirq.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="mcu_term.c">
       <SubType>compile</SubType>
     </Compile>

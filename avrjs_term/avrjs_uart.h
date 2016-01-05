@@ -24,11 +24,19 @@ THE SOFTWARE.
 #ifndef AVRJS_UART_H
 #define AVRJS_UART_H
 
+#include <stdlib.h>
 #include <stdint.h>
 
-void uart_tx(const unsigned char data);
-int uart_rx(unsigned char* const data);
-void uart_init(const uint16_t ubrr);
+#define UART0_RX_BUFFER_WIDTH 64
+#define UART0_TX_BUFFER_WIDTH 64
+
+extern volatile unsigned char uart0_rx_ovf_flag;
+
+size_t uart0_rx(uint8_t *const buffer, const size_t size);
+size_t uart0_tx(const uint8_t *const data, const size_t size);
+void uart0_init(uint16_t brr);
+void uart0_destroy(void);
+
 void printf_init(void);
 
 #endif
