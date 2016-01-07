@@ -146,16 +146,27 @@ int main(void)
 	mcu_term_add_command(&mt, "gcd", &gcd_cmd_cb, 0);
 	mcu_term_add_command(&mt, "lcm", &lcm_cmd_cb, 0);
 
+	set_sleep_mode(SLEEP_MODE_IDLE);
+
     while(1)
     {
+		cli();
 		unsigned char c;
         if (uart0_rx(&c, 1) > 0)
 		{ // parse char
+			sei();
 			if (mcu_term_write_char(&mt, (char) c) < 0)
 			{
 				mcu_term_destroy(&mt);
 				return -1;
 			}
+		}
+		else
+		{
+			sleep_enable();
+			sei();
+			sleep_cpu();
+			sleep_disable();
 		}
     }
 	return 0;
