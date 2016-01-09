@@ -128,7 +128,7 @@ int main(void)
 
 	sei();
 
-	printf("This terminal is connected to the UART0 port of a simulated ATmega128. This text and the prompt below are printed by the default program, you can load your own program by using the load button above.\r\n\r\n"
+	printf("This terminal is connected to the UART0 port of a simulated ATmega128. This text and the prompt below are printed by the default program, you can load your own program by browsing for a .hex file and hitting the load button above.\r\n\r\n"
 	"There is a copy of this default program as an Atmel Studio project on the AVRjs GitHub page: https://github.com/avrjs it contains UART routines and implements printf to get you started printing things to this terminal.\r\n\r\n"
 	"Please report any bugs to the AVRjs GitHub page linked in the footer. Thanks!\r\n\r\n"
 	"Demo terminal commands:\r\n"
