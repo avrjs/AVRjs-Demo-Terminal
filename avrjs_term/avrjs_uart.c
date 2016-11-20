@@ -117,7 +117,6 @@ ISR (USART0_RX_vect)
 static int uart_putchar_printf(char var, FILE *stream)
 {
 	return (uart0_tx((uint8_t*)&var, 1) != 1) ? 0 : -1;
-	return 0;
 }
 
 void printf_init(void)
