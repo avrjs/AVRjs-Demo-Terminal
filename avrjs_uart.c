@@ -43,7 +43,7 @@ size_t uart0_rx(uint8_t *const buffer, const size_t size)
 	size_t recd = 0;
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
 	{
-		while (cirq_empty(&uart0_rx_buffer) == 0) 
+		while ((cirq_empty(&uart0_rx_buffer) == 0) && (recd < size))
 		{
 			buffer[recd] = cirq_pop_front(&uart0_rx_buffer);
 			++recd;
@@ -88,7 +88,11 @@ void uart0_destroy(void)
 	UCSR0C = 0x06;
 }
 
+#if defined(__AVR_ATmega328__)
+ISR (USART_UDRE_vect)
+#else
 ISR (USART0_UDRE_vect)
+#endif
 {
 	if(cirq_empty(&uart0_tx_buffer) == 0)
 	{
@@ -100,7 +104,11 @@ ISR (USART0_UDRE_vect)
 	}
 }
 
+#if defined(__AVR_ATmega328__)
+ISR (USART_RX_vect)
+#else
 ISR (USART0_RX_vect)
+#endif
 {
 	if (cirq_space(&uart0_rx_buffer) != 0)
 	{
@@ -116,6 +124,7 @@ ISR (USART0_RX_vect)
 
 static int uart_putchar_printf(char var, FILE *stream)
 {
+	(void)stream;
 	return (uart0_tx((uint8_t*)&var, 1) != 1) ? 0 : -1;
 }
 

@@ -46,7 +46,7 @@ long int gcd(long int a, long int b)
 	{
 		b = -b;
 	}
-	
+
     if (a == 0)
 	{
 		return b;
@@ -55,7 +55,7 @@ long int gcd(long int a, long int b)
 	{
 		return a;
 	}
-	
+
 	long int r;
 	while(b != 0)
 	{
@@ -85,7 +85,7 @@ void gcd_cmd_cb(void* arg, size_t argc, char** argv)
 	{
 		printf(clamp_str, argv[2], arg1);
 	}
-	
+
 	printf("%ld\r\n", gcd(arg0, arg1));
 }
 
@@ -108,10 +108,10 @@ void lcm_cmd_cb(void* arg, size_t argc, char** argv)
 	{
 		printf(clamp_str, argv[2], arg1);
 	}
-	
+
 	long int tmp = (arg0 / gcd(arg0, arg1));
 	long int result = tmp * arg1;
-	
+
 	if (tmp != (result / arg1))
 	{ // overflow
 		printf("overflow detected, result > %ld\r\n", LONG_MAX);
@@ -128,9 +128,12 @@ int main(void)
 
 	sei();
 
-	printf("This terminal is connected to the UART0 port of a simulated ATmega128. This text and the prompt below are printed by the default program, you can load your own program by browsing for a .hex file and hitting the load button above.\r\n\r\n"
+	printf(
+#if !defined(__AVR_ATtiny1634__)
+	"This terminal is connected to the UART0 port of a simulated AVR. This text and the prompt below are printed by the default program, you can load your own program by browsing for a .hex file and hitting the load button above.\r\n\r\n"
 	"There is a copy of this default program as an Atmel Studio project on the AVRjs GitHub page: https://github.com/avrjs it contains UART routines and implements printf to get you started printing things to this terminal.\r\n\r\n"
-	"Please report any bugs to the AVRjs GitHub page linked in the footer. Thanks!\r\n\r\n"
+	"Bug reports and pull requests are most welcome, please use the AVRjs GitHub page linked in the footer. Thanks!\r\n\r\n"
+#endif
 	"Demo terminal commands:\r\n"
 	"\"gcd a b\"\r\n"
 	"where a and b are integers, this command will print the greatest common divisor of the 2 numbers providing they can fit in signed 32 bit ints\r\n"
